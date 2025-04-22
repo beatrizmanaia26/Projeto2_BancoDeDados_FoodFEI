@@ -19,8 +19,10 @@ O objetivo desse projeto é implementar um sistema de banco de dados para o  apl
 
 # Modelo Entidde Relacionamento 
 
-![codigo1](./imagens/mer_Proj2.png)
+![codigo1](./imagens/MERPROJ2.png)
 
 # Modelo Reçacional na 3FN
+
+![codigo1](./imagens/MR3FN_proj2.png)
 
 # DDL
