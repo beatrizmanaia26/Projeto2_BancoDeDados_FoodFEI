@@ -26,3 +26,86 @@ O objetivo desse projeto é implementar um sistema de banco de dados para o  apl
 ![codigo1](./imagens/MR3FN_proj2.png)
 
 # DDL
+
+```sql
+-- Apagar todas as tabelas considerando dependências
+drop table if exists gerente cascade;
+drop table if exists filial cascade;
+drop table if exists cliente cascade;
+drop table if exists cartao cascade;
+drop table if exists produto cascade;
+drop table if exists ingrediente cascade;
+drop table if exists pedido_e_avaliacao cascade;
+
+--criar tabelas
+
+create table cartao
+    (cvv	text, 
+    numero	text, 
+    validade text,
+    nome_titular text,
+    primary key (cvv)
+    );
+
+create table cliente
+    (cpf_cliente	text, 
+    nome_cliente	text, 
+    senha text,
+    telefone text,
+    cep text,
+    email text,
+    genero text,
+    cvv text,
+    foreign key (cvv) references cartao (cvv),
+    primary key (cpf_cliente)
+    );
+
+create table gerente
+    (cpf_gerente	text, 
+    nome_gerente	text, 
+    senha text,
+    primary key (cpf_gerente)
+    );
+
+create table ingrediente
+    (id_ingrediente	text, 
+    nome_ingrediente text, 
+    calorias text,
+    validade text,
+    primary key (id_ingrediente)
+    );
+
+create table produto
+    (id_produto	text, 
+    nome_produto	text, 
+    preco text,
+    tamanho_imagem text,
+    id_ingrediente text,
+    foreign key (id_ingrediente) references ingrediente (id_ingrediente),
+    primary key (id_produto)
+    );
+
+ create table filial
+  (codigo_filial text,
+   nome_filial text,
+   cep text,
+   id_produto text,
+   cpf_cliente text,
+  foreign key (id_produto) references produto (id_produto),
+  foreign key (cpf_cliente) references cliente (cpf_cliente),
+  primary key(codigo_filial)
+  );
+  
+  create table pedido_e_avaliacao
+    (data date, 
+    nota float, 
+    comentario text,
+    id_produto text,
+    cpf_cliente text,
+    codigo_filial text,
+    foreign key (id_produto) references produto (id_produto),
+    foreign key (cpf_cliente) references cliente (cpf_cliente),
+    foreign key (codigo_filial) references filial (codigo_filial)
+    );
+
+```
