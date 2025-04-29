@@ -27,8 +27,7 @@ O objetivo desse projeto é implementar um sistema de banco de dados para o  apl
 
 # DDL
 
-```sql
--- Apagar todas as tabelas considerando dependências
+```sql-- Apagar todas as tabelas considerando dependências
 drop table if exists gerente cascade;
 drop table if exists filial cascade;
 drop table if exists cliente cascade;
@@ -43,7 +42,7 @@ create table cartao
     (cvv	text, 
     numero	text, 
     validade text,
-    nome_titular text,
+   --cpf titular como chave estrangeira
     primary key (cvv)
     );
 
@@ -107,5 +106,8 @@ create table produto
     foreign key (cpf_cliente) references cliente (cpf_cliente),
     foreign key (codigo_filial) references filial (codigo_filial)
     );
+
+ALTER TABLE cartao 
+ADD COLUMN cpf_titular TEXT REFERENCES cliente(cpf_cliente);
 
 ```
