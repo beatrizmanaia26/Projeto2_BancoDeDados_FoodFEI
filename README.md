@@ -27,7 +27,8 @@ O objetivo desse projeto é implementar um sistema de banco de dados para o  apl
 
 # DDL
 
-```sql-- Apagar todas as tabelas considerando dependências
+```sql
+-- Apagar todas as tabelas considerando dependências
 drop table if exists gerente cascade;
 drop table if exists filial cascade;
 drop table if exists cliente cascade;
