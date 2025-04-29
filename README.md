@@ -55,8 +55,6 @@ create table cliente
     cep text,
     email text,
     genero text,
-    cvv text,
-    foreign key (cvv) references cartao (cvv),
     primary key (cpf_cliente)
     );
 
@@ -110,5 +108,4 @@ create table produto
 
 ALTER TABLE cartao 
 ADD COLUMN cpf_titular TEXT REFERENCES cliente(cpf_cliente);
-
 ```
