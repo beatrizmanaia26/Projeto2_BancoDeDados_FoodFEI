@@ -36,6 +36,7 @@ drop table if exists cartao cascade;
 drop table if exists produto cascade;
 drop table if exists ingrediente cascade;
 drop table if exists pedido_e_avaliacao cascade;
+drop table if exists produtoIngrediente;
 
 --criar tabelas
 
@@ -70,6 +71,7 @@ create table ingrediente
     nome_ingrediente text, 
     calorias text,
     validade text,
+    preço float,
     primary key (id_ingrediente)
     );
 

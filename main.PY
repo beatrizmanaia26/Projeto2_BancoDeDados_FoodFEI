@@ -94,3 +94,59 @@ for i in range(10, 20):
     print(f"Cartão {numero_cartao} adicional associado ao CPF {cpf}")
   except Exception as e:
     print(f"Erro ao associar cartão {numero_cartao} ao CPF {cpf}: {e}")
+
+#INGREDIENTE
+nome_ingredientes = ["pão italiano", "pão de hamburguer", "pão de hotdog", "carne bovina", "carne suína", "carne de frango", "queijo mussarela", "queijo prato", "queijo cheddar", "queijo gorgonzola", "tomate","alface", "rucula", "cebola", "picles", "molho especial", "molho barbecue", "molho maionese", "molho mostarda", "molho ketchup", "molho maionese", "batata", "cebola roxa", "pimentão", "azeitona", "milho", "ervilha", "frango desfiado", "calabresa", "bacon", "ovo", "presunto", "peito de peru", "peito de frango", "peito de peru", "peito de frango", "peito de peru"]
+
+id_ingredientes = [] #para depois iterar sobre eles e associar ao produto ingrediente
+id_ingrediente = faker.unique.random_int(min=10000, max=99999)
+
+for nomeIngrediente in nome_ingredientes:
+  id_ingrediente = faker.unique.random_int(min=10000, max=99999)
+  validade_ingrediente = faker.date_between(start_date='today', end_date='+10y').isoformat()
+  calorias_ingrediente = random.randint(10, 500)
+  preco_ingrediente = round(random.uniform(0.1, 10.0), 2)
+  id_ingredientes.append(id_ingrediente)
+  try:
+    response = supabase.table('ingrediente').insert({
+        "id_ingrediente": id_ingrediente,
+        "nome_ingrediente": nomeIngrediente,
+        "validade": validade_ingrediente,
+        "calorias": calorias_ingrediente,
+        "preço": preco_ingrediente
+    }).execute()
+    print(f"Ingrediente {nomeIngrediente} adicionado com sucesso!")
+  except Exception as e:
+    print(f"Erro ao adicionar ingrediente {nomeIngrediente}: {e}")
+  
+#PRODUTO
+
+nome_produtos = ["X-Burguer", "X-Salada", "X-Bacon", "X-Frango", "X-Calabresa", "X-Egg", "X-Egg Bacon", "X-Tudo", "X-Especial,", "X-Burguer Maxter", "X-rancho", "X-fazenda","X-incrivel", "X-burguer do chef", "X-feriado"]
+
+id_produtos = [] #para depois iterar sobre eles e associar ao produto ingrediente
+
+for nomeProduto in nome_produtos:
+  codigo_produto = faker.unique.random_int(min=10000, max=99999)
+  preco_produto = round(random.uniform(10.0, 50.0), 2)
+  tamanho_imagem = random.randint(100, 500)
+  id_produtos.append(codigo_produto)
+  try:
+    response = supabase.table('produto').insert({
+        "codigo_produto": codigo_produto,
+        "nome_produto": nomeProduto,
+        "preço": preco_produto,
+        "tamanho_imagem": tamanho_imagem
+    }).execute()
+    print(f"Produto {nomeProduto} adicionado com sucesso!")
+  except Exception as e:
+    print(f"Erro ao adicionar produto {nomeProduto}: {e}")
+
+#PRODUTO INGREDIENTE
+
+#FILIAL
+codigo_filial = faker.unique.random_int(min=10000, max=99999)
+nome_filial = faker.company()
+cep_filial = faker.postcode()
+
+#PEDIDO E AVALIACAO
+
