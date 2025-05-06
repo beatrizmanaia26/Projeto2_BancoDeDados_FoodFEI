@@ -94,7 +94,7 @@ create table produto
   primary key(codigo_filial)
   );
   
-  create table pedido_e_avaliacao
+    create table pedido_e_avaliacao
     (data date, 
     nota float, 
     comentario text,
@@ -104,6 +104,14 @@ create table produto
     foreign key (id_produto) references produto (id_produto),
     foreign key (cpf_cliente) references cliente (cpf_cliente),
     foreign key (codigo_filial) references filial (codigo_filial)
+    );
+
+    create table produtoIngrediente
+    (quantidade_ingrediente float,
+    id_produto text,
+    id_ingrediente text,
+    foreign key (id_produto) references produto (id_produto),
+    foreign key (id_ingrediente) references ingrediente (id_ingrediente)
     );
 
 ALTER TABLE cartao 
