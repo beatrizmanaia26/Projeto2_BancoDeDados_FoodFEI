@@ -80,8 +80,6 @@ create table produto
     nome_produto	text, 
     preco text,
     tamanho_imagem text,
-    id_ingrediente text,
-    foreign key (id_ingrediente) references ingrediente (id_ingrediente),
     primary key (id_produto)
     );
 
@@ -90,9 +88,9 @@ create table produto
    nome_filial text,
    cep text,
    id_produto text,
-   cpf_cliente text,
+   cpf_gerente text,
   foreign key (id_produto) references produto (id_produto),
-  foreign key (cpf_cliente) references cliente (cpf_cliente),
+  foreign key (cpf_gerente) references gerente (cpf_gerente),
   primary key(codigo_filial)
   );
   
@@ -112,6 +110,7 @@ create table produto
     (quantidade_ingrediente float,
     id_produto text,
     id_ingrediente text,
+    unidade_de_medida text,
     foreign key (id_produto) references produto (id_produto),
     foreign key (id_ingrediente) references ingrediente (id_ingrediente)
     );
