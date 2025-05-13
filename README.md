@@ -37,7 +37,7 @@ drop table if exists produto cascade;
 drop table if exists ingrediente cascade;
 drop table if exists pedido_e_avaliacao cascade;
 drop table if exists produtoIngrediente;
-
+drop table if exists filialProduto;
 --criar tabelas
 
 create table cartao
@@ -87,13 +87,19 @@ create table produto
   (codigo_filial text,
    nome_filial text,
    cep text,
-   id_produto text,
    cpf_gerente text,
-  foreign key (id_produto) references produto (id_produto),
   foreign key (cpf_gerente) references gerente (cpf_gerente),
   primary key(codigo_filial)
   );
   
+  create table filialProduto
+    (id_produto text,
+     codigo_filial text,
+    foreign key (id_produto) references produto (id_produto),
+    foreign key (codigo_filial) references filial (codigo_filial)
+    );
+
+
     create table pedido_e_avaliacao
     (data date, 
     nota float, 
