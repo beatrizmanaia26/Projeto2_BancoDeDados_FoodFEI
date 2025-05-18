@@ -130,14 +130,14 @@ SELECT nome_ingrediente, nome_produto --o que quero mostrar fica no select (tabe
 FROM ingrediente
 INNER JOIN produtoingrediente ON produtoingrediente.id_ingrediente = ingrediente.id_ingrediente
 INNER JOIN produto ON produto.id_produto = produtoingrediente.id_produto
-WHERE produto.id_produto = '18672'; --ir na tabela de produto e pegar algum id
+WHERE produto.id_produto = '11450'; --ir na tabela de produto e pegar algum id
 
 --2)listar todos os cliente (por cpf) que tem mais de 2 cartões 
 
 --GROUP BY / HAVING 
 --o nome que aparece apos o group by tem que ta no select, se desejo mostra mais de uma coisa tenho que fazer uma subquery 
 --usa groupby quando faz agregação ex: count,sum,avg..
---após o groupby usa having para filtrar os resultados de funções de agregação (COUNT, SUM, AVG..)
+--após o groupby usa having para filtrar os resultados de funções de agregação (COUNT, SUM, AVG..) ex having count(*) > 10....
 
 --ex:
 --SELECT cliente.cpf_cliente --o que quero mostrar fica no select (tabelas que tem esses dadoa no frm ou joins)
@@ -257,7 +257,7 @@ SELECT produto.nome_produto, COUNT(ingrediente.id_ingrediente)
 FROM produto
 INNER JOIN produtoingrediente ON produtoingrediente.id_produto = produto.id_produto
 INNER JOIN ingrediente ON ingrediente.id_ingrediente = produtoingrediente.id_ingrediente
-WHERE ingrediente.id_ingrediente = '10334'
+WHERE ingrediente.id_ingrediente = '10946'
 GROUP BY 1
 
 --11)listar a quantidade de produtos cada cliente avaliou (= a query de quantos ingredientes cada produto tem)
@@ -267,7 +267,7 @@ GROUP BY 1
 ORDER BY quantidade_de_produtos_avaliados DESC
 
 --12)mostrar a média das notas por produto avaliado 
-SELECT produto.nome_produto, AVG(pedido_e_avaliacao.nota) AS mdida_avaliacao_produto
+SELECT produto.nome_produto, AVG(pedido_e_avaliacao.nota) AS media_avaliacao_produto
 FROM pedido_e_avaliacao
 INNER JOIN produto ON produto.id_produto = pedido_e_avaliacao.id_produto
 GROUP BY 1
@@ -277,20 +277,47 @@ SELECT  produto.nome_produto, produto.preco, filial.nome_filial
 FROM produto
 INNER JOIN filialproduto ON produto.id_produto = filialproduto.id_produto
 INNER JOIN filial ON filialproduto.codigo_filial = filial.codigo_filial
-
---14)WHERE produto.preco > AVG(produto.preco) --fazer uma sub query que retorna o avg e usar isso no where, NAO PODE USAR AVG DIRETAMENTE NO WHERE
+--WHERE produto.preco > AVG(produto.preco) --fazer uma sub query que retorna o avg e usar isso no where, NAO PODE USAR AVG DIRETAMENTE NO WHERE
 WHERE produto.preco > (
   SELECT AVG(produto.preco) 
   FROM produto
   )
 
---15)produto mais caro de alguma filial (soma da nota dos ingredientes por produto)  
+--14)produto mais caro de uma filial especifica  
+SELECT filial.nome_filial, produto.nome_produto, produto.preco
+FROM filial
+INNER JOIN filialproduto ON filialproduto.codigo_filial = filial.codigo_filial
+INNER JOIN produto ON produto.id_produto =filialproduto.id_produto
+WHERE filial.codigo_filial = '12669'
+ORDER BY produto.preco DESC  --ordenar resultado baseado no preco  de maneira decrescente (maior no topo)
+LIMIT 1; --pegar primeiro
+
+--15)Total gasto por cliente (soma dos preços dos produtos que ele avaliou) 
+SELECT cliente.nome_cliente, SUM(produto.preco) AS total_gasto
+FROM cliente
+INNER JOIN pedido_e_avaliacao ON pedido_e_avaliacao.cpf_cliente = cliente.cpf_cliente
+INNER JOIN produto ON produto.id_produto = pedido_e_avaliacao.id_produto
+GROUP BY cliente.nome_cliente
+ORDER BY total_gasto DESC --fazer aparecer em rdem dos que gastaram mais
+
+--16)clientes que fizeram pedido em mais de uma filial 
+
+--(usar count no select p conta oq desejo validar em numero (codigo filial) dps usar outro parametro do select para colocar no group by) e usar o count do select no having com o filtro que desejamos (>1))
+
+SELECT cliente.nome_cliente, STRING_AGG(filial.nome_filial, ','), COUNT(pedido_e_avaliacao.codigo_filial) AS quantidade_filial 
+FROM cliente
+INNER JOIN pedido_e_avaliacao ON pedido_e_avaliacao.cpf_cliente = cliente.cpf_cliente
+INNER JOIN filial ON filial.codigo_filial = pedido_e_avaliacao.codigo_filial
+GROUP BY cliente.nome_cliente
+HAVING  COUNT(pedido_e_avaliacao.codigo_filial) > 1
 
 
---16)Total gasto por cliente (soma dos preços dos produtos que ele avaliou) 
---17)clientes que fizeram pedido em mais de uma filial 
---18)filiais com mais de 1 produto avaliado (garantir isso no código)
-
+--17)filiais com mais de 1 produto avaliado (garantir isso no código)
+SELECT filial.nome_filial, COUNT(pedido_e_avaliacao.id_produto)
+FROM filial
+INNER JOIN pedido_e_avaliacao ON pedido_e_avaliacao.codigo_filial = filial.codigo_filial
+GROUP BY filial.nome_filial
+HAVING COUNT(pedido_e_avaliacao.id_produto) > 1
 
 -- LEFT JOIN quando  quer manter todas as linhas da tabela da esquerda, mesmo que não haja correspondência na tabela da direita e mostrar NULL nos campos da tabela da direita quando não houver correspondência.
 
