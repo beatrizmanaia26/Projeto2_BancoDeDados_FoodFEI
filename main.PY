@@ -100,28 +100,6 @@ for i in range(20, 30):
   except Exception as e:
     print(f"Erro ao associar cartão {numero_cartao} ao CPF {cpf}: {e}")
 
-#GERENTE
-
-gerentes = []
-for _ in range(15):  #quantidade de gerentes
-  cpf_gerente = faker.unique.cpf()
-  nome_gerente = faker.name()
-  senha_gerente = faker.password()
-
-  gerentes.append({
-      "cpf_gerente": cpf_gerente,
-      "nome_gerente": nome_gerente,
-      "senha": senha_gerente
-  })
-
-# Inserir gerente no Supabase
-for gerente in gerentes:
-  try:
-    response = supabase.table('gerente').insert(gerente).execute()
-    print(f"Gerente {gerente['nome_gerente']} adicionado com sucesso!")
-  except Exception as e:
-    print(f"Erro ao adicionar gerente {gerente['cpf_gerente']}: {e}")
-
 #INGREDIENTE
 nome_ingredientes = [
     "pão italiano", "pão de hamburguer", "pão de hotdog", "carne bovina",
@@ -135,8 +113,7 @@ nome_ingredientes = [
     "peito de peru"
 ]
 
-id_ingredientes = [
-]  #para depois iterar sobre eles e associar ao produto ingrediente
+id_ingredientes = []  #para depois iterar sobre eles e associar ao produto ingrediente
 id_ingrediente = faker.unique.random_int(min=10000, max=99999)
 
 for nomeIngrediente in nome_ingredientes:
@@ -298,9 +275,8 @@ for pedidoComprado in range(13):
 
 #atualizar pedido e avaliacao com cpf do cliente
 for i in range(13):
-  comentariosMatch = listaComentario[i][
-      "comentario"]  #usa comentario para fazer o match e associar ao cpf do cliente na tabela
-  cpf = cpfCliente[ i]  #cpf do cliente que vou associar ao comentarioMatch na tabela pedido e avaliacao
+  comentariosMatch = listaComentario[i]["comentario"]  #usa comentario para fazer o match e associar ao cpf do cliente na tabela
+  cpf = random.choice(cpfCliente)# associar aleatoriamente algum cliente da lista cpf cliemte assim um cliente consegue avaliar 0 ou +! pedido
   try:
     supabase.table("pedido_e_avaliacao").update({
         "cpf_cliente": cpf
