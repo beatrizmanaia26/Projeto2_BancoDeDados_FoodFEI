@@ -100,6 +100,28 @@ for i in range(20, 30):
   except Exception as e:
     print(f"Erro ao associar cartão {numero_cartao} ao CPF {cpf}: {e}")
 
+#GERENTE
+
+gerentes = []
+for _ in range(15):  #quantidade de gerentes
+  cpf_gerente = faker.unique.cpf()
+  nome_gerente = faker.name()
+  senha_gerente = faker.password()
+
+  gerentes.append({
+      "cpf_gerente": cpf_gerente,
+      "nome_gerente": nome_gerente,
+      "senha": senha_gerente
+  })
+
+# Inserir gerente no Supabase
+for gerente in gerentes:
+  try:
+    response = supabase.table('gerente').insert(gerente).execute()
+    print(f"Gerente {gerente['nome_gerente']} adicionado com sucesso!")
+  except Exception as e:
+    print(f"Erro ao adicionar gerente {gerente['cpf_gerente']}: {e}")
+
 #INGREDIENTE
 nome_ingredientes = [
     "pão italiano", "pão de hamburguer", "pão de hotdog", "carne bovina",
@@ -113,7 +135,8 @@ nome_ingredientes = [
     "peito de peru"
 ]
 
-id_ingredientes = []  #para depois iterar sobre eles e associar ao produto ingrediente
+id_ingredientes = [
+]  #para depois iterar sobre eles e associar ao produto ingrediente
 id_ingrediente = faker.unique.random_int(min=10000, max=99999)
 
 for nomeIngrediente in nome_ingredientes:
@@ -230,6 +253,71 @@ for _ in range(35):  #quantidade de filiais maior que quantidade de gerentes par
   codigo_filial = faker.unique.random_int(min=10000, max=99999)
   nome_filial = faker.company()
   cep_filial = faker.postcode()
+
+  filiais.append({
+      "codigo_filial": codigo_filial,
+      "nome_filial": nome_filial,
+      "cep": cep_filial
+  })
+
+#adicionar filial no supabase
+for i in filiais:
+  try:
+    response = supabase.table('filial').insert(i).execute()
+    print(f"Filial {i['nome_filial']} adicionada com sucesso!")
+  except Exception as e:
+    print(f"Erro ao adicionar filial {i['nome_filial']}: {e}")
+
+#update filial com cpf de gerente
+for i in range(15):
+  cpf_gerente = gerentes[i]["cpf_gerente"]
+  codigo_filial = filiais[i]["codigo_filial"]
+  try:
+    supabase.table("filial").update({
+        "cpf_gerente": cpf_gerente
+    }).match({
+        "codigo_filial": codigo_filial
+    }).execute()
+    print(f"Filial {codigo_filial} associada ao gerente {cpf_gerente}")
+  except Exception as e:
+    print(
+        f"Erro ao associar filial {codigo_filial} ao gerente {cpf_gerente}: {e}"
+    )
+
+for i in range(15, len(filiais)):
+    cpf_gerente = random.choice(gerentes)["cpf_gerente"] #gerente aleatorio para associar a filial
+    codigo_filial = filiais[i]["codigo_filial"]
+    try:
+      supabase.table("filial").update({
+           "cpf_gerente": cpf_gerente
+      }).match({
+           "codigo_filial": codigo_filial
+      }).execute()
+      print(f"Filial {codigo_filial} associada ao ao gerente{cpf_gerente}")
+  
+    except Exception as e:
+      print(
+          f"Erro ao associar Filial {codigo_filial} ao gerente {cpf_gerente}: {e}"
+      )
+'''
+  cpf_gerente = gerentes[i]["cpf_gerente"]
+  codigo_filial = filiais[i]["codigo_filial"]
+  id_produtos = random.choice(id_produtos)
+  try:
+    supabase.table("filial").update({
+         "cpf_gerente": cpf_gerente
+    }).match({
+         "codigo_filial": codigo_filial
+    }).execute()
+    print(f"Id do produto {codigo_filial} associado ao codigo da Filial{cpf_gerente}")
+
+  except Exception as e:
+    print(
+        f"Erro ao associarId do produto {codigo_filial} ao codigo da Filial {cpf_gerente}: {e}"
+    )
+'''
+  
+
 
 
 #FILIAL PRODUTO
