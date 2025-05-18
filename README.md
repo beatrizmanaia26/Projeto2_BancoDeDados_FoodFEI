@@ -9,9 +9,7 @@ O objetivo desse projeto é implementar um sistema de banco de dados para o  apl
 -Laura de Souza Parente RA:22.123.033-7
 
 # Como executar o projeto:
--abre o supabase (https://supabase.com/)e em "SQL Editor" coloque a primeira DDL abaixo, em seguida clique em "run"
-
--após rodar a primeira DDL, no supabase, em "SQL editor" rode a segunda que está logo abaixo para fazer o relacionamento das tabelas que dependem uma da outra (como departamento na tabela professor)
+-abre o supabase (https://supabase.com/)e em "SQL Editor" coloque a DDL abaixo, em seguida clique em "run"
 
 -no replit coloque o código commitado nesse projeto (código esse que serve tanto para: gerar, inserir e validar dados na tabela) antes de rodar, coloque sua supabaseUrl e supabaseKey no código
 
