@@ -23,6 +23,11 @@ O objetivo desse projeto é implementar um sistema de banco de dados para o  apl
 
 ![codigo1](./imagens/MR3FN_proj2.png)
 
+*3fn 
+1-n: coloco chave do 1 no n (verde)
+n-n obrigatoriamente cria nova tabela
+para qqr relacionamento, se relacionamento tiver atributos novos obrigatoriamente crio nova tabela
+
 # DDL
 
 ```sql
@@ -123,7 +128,7 @@ ALTER TABLE cartao
 ADD COLUMN cpf_titular TEXT REFERENCES cliente(cpf_cliente);
 
 ```
-# QUERIES
+# QUERIES E ALGEBRA RELACIONAL
 ```sql
 --1)listar todos os ingredientes de algum produto 
 SELECT nome_ingrediente, nome_produto --o que quero mostrar fica no select (tabelas que tem esses dadoa no from ou joins)
@@ -131,6 +136,19 @@ FROM ingrediente
 INNER JOIN produtoingrediente ON produtoingrediente.id_ingrediente = ingrediente.id_ingrediente
 INNER JOIN produto ON produto.id_produto = produtoingrediente.id_produto
 WHERE produto.id_produto = '11450'; --ir na tabela de produto e pegar algum id
+
+--descricoes-> Projeção: SELECT π, Seleção: WHERE σ,from () (escreve cada um dentro do () do anterior -> select ( where(from )))
+
+--ESCREVEE: projecao... selecao...  tabelas (from, joins...) (nos joins é primerio ON e depois tabela, cada join fica dentro de um () e todos ficam dentro do ()
+--a igualdade (produto.id_produto = produtoingrediente.id_produto )dps do ⋈ e antes do nome da tabela é menor 
+π nome_ingrediente, nome_produto (
+    σ produto.id_produto = '11450'(
+      ingrediente ⋈ produto.id_produto = produtoingrediente.id_produto produtoingrediente 
+      ⋈ produtoingrediente.id_produto = produto.id_produto produto
+    )
+)
+--group by, order by, limit... nao aparece na algebra relacional
+
 
 --2)listar todos os cliente (por cpf) que tem mais de 2 cartões 
 
@@ -175,6 +193,10 @@ INNER JOIN cartao ON cartao.cpf_titular = cliente.cpf_cliente
 GROUP BY cliente.cpf_cliente
 HAVING COUNT(cartao.numero) > 2
 
+π cliente.cpf_cliente, COUNT(cartao.numero) (
+    cliente ⋈ cartao.cpf_titular = cliente.cpf_cliente cartao 
+)
+
 --WHERE IN	Filtrar por uma lista de valores (quero mostrar todos os clientes que tem mais de 2 cartoes, filtro isso no where)
 --counts
 --COUNT(*)Conta todas as linhas, independente se tem `NULL` ou não
@@ -190,6 +212,10 @@ GROUP BY ingrediente.nome_ingrediente --ordena pelo nome
 ORDER BY quantidade_usada DESC --ordenada colocando o ingrediente mais usado
 LIMIT 1; --faz aparecer só um ingrediente
 
+π ingrediente.nome_ingrediente, COUNT(produtoingrediente.id_ingrediente)(
+    ingrediente ⋈ ingrediente.id_ingrediente = produtoingrediente.id_ingrediente produtoingrediente
+)
+
 --4)quais as filiais de cada gerente  
 --da para fazer com strng_agg mas assim foi mais intuitivo para mim 
 SELECT filial.nome_filial, gerente.nome_gerente
@@ -197,12 +223,18 @@ FROM filial
 INNER JOIN gerente ON gerente.cpf_gerente = filial.cpf_gerente --q mudaria se fizesse left join
 ORDER BY gerente.nome_gerente DESC
 
+π filial.nome_filial, gerente.nome_gerente (
+    filial ⋈ gerente.cpf_gerente = filial.cpf_gerente gerente 
+    )
+
 --5)mostre o nome da filial que mais vendeu produtos e a quantidade de produtos vendida 
 SELECT pedido_e_avaliacao.codigo_filial, COUNT(pedido_e_avaliacao.id_produto) AS quantidade_produto
 FROM pedido_e_avaliacao
 GROUP BY (pedido_e_avaliacao.codigo_filial)
 ORDER BY quantidade_produto DESC
 LIMIT 1;  --sempre que quiser o "mais" ou "menos" algo uo order by e pego primeiro
+
+π pedido_e_avaliacao.codigo_filial, COUNT(pedido_e_avaliacao.id_produto) (pedido_e_avaliacao)
 
 --6)qual os ingrediente mais usados no total das filiais em ordem descrescente
 SELECT ingrediente.nome_ingrediente, COUNT(filialProduto.codigo_filial) AS quantidade_produto
@@ -214,6 +246,11 @@ GROUP BY ingrediente.nome_ingrediente
 ORDER BY quantidade_produto DESC
 --LIMIT 1; (mostra só  o mais usado)
 
+π ingrediente.nome_ingrediente, COUNT(filialProduto.codigo_filial) (
+    ingrediente ⋈ produtoingrediente.id_ingrediente = ingrediente.id_ingrediente produtoingrediente 
+    ⋈ produtoingrediente.id_produto = produto.id_produto produto
+    ⋈ filialProduto.id_produto = produto.id_produto filialProduto
+    )
 
 --7)quantas/quais as filiais de cada gerente 
 SELECT gerente.nome_gerente, COUNT(filial.cpf_gerente), STRING_AGG(filial.nome_filial, ',') 
@@ -221,6 +258,9 @@ FROM gerente
 INNER JOIN filial ON filial.cpf_gerente = gerente.cpf_gerente
 GROUP BY 1 --gerente.nome_gerente
 
+π gerente.nome_gerente, COUNT(filial.cpf_gerente), STRING_AGG(filial.nome_filial, ',')  (
+    gerente ⋈ 
+)
 --stringagg -> array de filial (todas as filiais do select coloca ai)
 
 --quantas filiais cada gerente tem
@@ -237,6 +277,8 @@ INNER JOIN filialproduto ON filialproduto.codigo_filial = filial.codigo_filial
 GROUP BY filial.nome_filial
 ORDER BY  total_produtos_vendido_por_filial DESC
 --LIMIT 1; --mostra so A que mais vendeu
+π filial.nome_filial, COUNT(filialProduto.id_produto)(
+    filial  ⋈ filialproduto.codigo_filial = filial.codigo_filial filialproduto)
 
 --9)mostre a filial com maior nota de avaliacao
 SELECT filial.nome_filial, AVG(pedido_e_avaliacao.nota) AS media_notas --avg media de notas 
@@ -245,6 +287,10 @@ INNER JOIN pedido_e_avaliacao ON pedido_e_avaliacao.codigo_filial = filial.codig
 GROUP BY filial.nome_filial
 ORDER BY media_notas DESC 
 LIMIT 1
+
+π  filial.nome_filial, AVG(pedido_e_avaliacao.nota) (
+    filial  ⋈ pedido_e_avaliacao.codigo_filial = filial.codigo_filial pedido_e_avaliacao
+)
 
 --mostra filiais com nota de avaliacao = 5
 --SELECT filial.nome_filial, pedido_e_avaliacao.nota
@@ -260,17 +306,30 @@ INNER JOIN ingrediente ON ingrediente.id_ingrediente = produtoingrediente.id_ing
 WHERE ingrediente.id_ingrediente = '10946'
 GROUP BY 1
 
+π  produto.nome_produto, COUNT(ingrediente.id_ingrediente) (
+    σ ingrediente.id_ingrediente = '10946' (
+    produto  ⋈ produtoingrediente.id_produto = produto.id_produto produtoingrediente
+     ⋈ ngrediente.id_ingrediente = produtoingrediente.id_ingrediente ingrediente
+    )
+)
+
 --11)listar a quantidade de produtos cada cliente avaliou (= a query de quantos ingredientes cada produto tem)
 SELECT pedido_e_avaliacao.cpf_cliente, COUNT(pedido_e_avaliacao.id_produto) AS quantidade_de_produtos_avaliados
 FROM pedido_e_avaliacao
 GROUP BY 1
 ORDER BY quantidade_de_produtos_avaliados DESC
 
+π  pedido_e_avaliacao.cpf_cliente, COUNT(pedido_e_avaliacao.id_produto) (pedido_e_avaliacao)
+
 --12)mostrar a média das notas por produto avaliado 
 SELECT produto.nome_produto, AVG(pedido_e_avaliacao.nota) AS media_avaliacao_produto
 FROM pedido_e_avaliacao
 INNER JOIN produto ON produto.id_produto = pedido_e_avaliacao.id_produto
 GROUP BY 1
+
+π  produto.nome_produto, AVG(pedido_e_avaliacao.nota) (
+    pedido_e_avaliacao ⋈ produto.id_produto = pedido_e_avaliacao.id_produto produto
+    )
 
 --13)produtos mais caros que a media de preço e a filial desse produto 
 SELECT  produto.nome_produto, produto.preco, filial.nome_filial
@@ -283,6 +342,14 @@ WHERE produto.preco > (
   FROM produto
   )
 
+π  produto.nome_produto, produto.preco, filial.nome_filial ( σ preco> media(
+    produto ⋈ produto.id_produto = filialproduto.id_produto filialproduto
+    ⋈ filialproduto.codigo_filial = filial.codigo_filial filial
+    )
+)
+ 
+ media <- π AVG(produto.preco) (produto)
+
 --14)produto mais caro de uma filial especifica  
 SELECT filial.nome_filial, produto.nome_produto, produto.preco
 FROM filial
@@ -292,6 +359,12 @@ WHERE filial.codigo_filial = '12669'
 ORDER BY produto.preco DESC  --ordenar resultado baseado no preco  de maneira decrescente (maior no topo)
 LIMIT 1; --pegar primeiro
 
+π filial.nome_filial, produto.nome_produto, produto.preco( σ filial.codigo_filial = '12669'(
+  filial ⋈ filialproduto.codigo_filial = filial.codigo_filial filialproduto
+    ⋈ roduto.id_produto =filialproduto.id_produto  produto 
+    )
+)
+
 --15)Total gasto por cliente (soma dos preços dos produtos que ele avaliou) 
 SELECT cliente.nome_cliente, SUM(produto.preco) AS total_gasto
 FROM cliente
@@ -299,6 +372,11 @@ INNER JOIN pedido_e_avaliacao ON pedido_e_avaliacao.cpf_cliente = cliente.cpf_cl
 INNER JOIN produto ON produto.id_produto = pedido_e_avaliacao.id_produto
 GROUP BY cliente.nome_cliente
 ORDER BY total_gasto DESC --fazer aparecer em rdem dos que gastaram mais
+
+π cliente.nome_cliente, SUM(produto.preco)(
+    cliente ⋈ pedido_e_avaliacao.cpf_cliente = cliente.cpf_cliente pedido_e_avaliacao 
+     ⋈ produto.id_produto = pedido_e_avaliacao.id_produto produto
+)
 
 --16)clientes que fizeram pedido em mais de uma filial 
 
@@ -311,6 +389,9 @@ INNER JOIN filial ON filial.codigo_filial = pedido_e_avaliacao.codigo_filial
 GROUP BY cliente.nome_cliente
 HAVING  COUNT(pedido_e_avaliacao.codigo_filial) > 1
 
+π cliente.nome_cliente, STRING_AGG(filial.nome_filial, ','), COUNT(pedido_e_avaliacao.codigo_filial) (
+    cliente ⋈ pedido_e_avaliacao.cpf_cliente = cliente.cpf_cliente pedido_e_avaliacao ⋈ filial.codigo_filial = pedido_e_avaliacao.codigo_filial filial
+)
 
 --17)filiais com mais de 1 produto avaliado (garantir isso no código)
 SELECT filial.nome_filial, COUNT(pedido_e_avaliacao.id_produto)
@@ -319,6 +400,9 @@ INNER JOIN pedido_e_avaliacao ON pedido_e_avaliacao.codigo_filial = filial.codig
 GROUP BY filial.nome_filial
 HAVING COUNT(pedido_e_avaliacao.id_produto) > 1
 
+π filial.nome_filial, COUNT(pedido_e_avaliacao.id_produto) (
+    filial ⋈ pedido_e_avaliacao.codigo_filial = filial.codigo_filial pedido_e_avaliacao 
+)
 -- LEFT JOIN quando  quer manter todas as linhas da tabela da esquerda, mesmo que não haja correspondência na tabela da direita e mostrar NULL nos campos da tabela da direita quando não houver correspondência.
 
 --ex: na produto com todos os produtos cadastrados, tabela pedido_e_avaliacao com apenas os produtos que foram avaliados, quero ver todos os produtos, mesmo os que nunca foram avaliados, com a média das notas (se existirem), use LEFT JOIN:
@@ -327,38 +411,3 @@ HAVING COUNT(pedido_e_avaliacao.id_produto) > 1
 --FROM   produto
 --LEFT JOIN   pedido_e_avaliacao ON produto.id_produto = pedido_e_avaliacao.id_produto
 --GROUP BY  produto.nome_produto;
-
-```
-
-# ALGEBRA RELACIONAL
-
-```sql 
-
---1 -querie
-SELECT nome_ingrediente, nome_produto --o que quero mostrar fica no select (tabelas que tem esses dadoa no from ou joins)
-FROM ingrediente
-INNER JOIN produtoingrediente ON produtoingrediente.id_ingrediente = ingrediente.id_ingrediente
-INNER JOIN produto ON produto.id_produto = produtoingrediente.id_produto
-WHERE produto.id_produto = '11450'; --ir na tabela de produto e pegar algum id
-
---Projeção: SELECT π, Seleção: WHERE σ,from ()
-
---ESCREVEER: projecao... selecao...  tabelas (from, joins...) (nos joins é primerio ON e depois tabela, cada join fica dentro de um () e todos ficam dentro do ()
-
-π nome_ingrediente, nome_produto (
-    σ produto.id_produto = '11450'(
-     $ (ingrediente \bowtie_:{ produto.id_produto = produtoingrediente.id_produto} produtoingrediente) $
-    )
-)
-
-π nome_ingrediente, nome_produto (
-  σ produto.id_produto = 11450 (
-    (ingrediente ⋈ ingrediente.id_ingrediente = produtoingrediente.id_ingrediente
-    produtoingrediente) ⋈ produtoingrediente.id_produto = produto.id_produto produto
-  )
-)
---group by, order by, limit... nao aparece na algebra relacional
-
-
-
-```
