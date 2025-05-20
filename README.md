@@ -329,3 +329,36 @@ HAVING COUNT(pedido_e_avaliacao.id_produto) > 1
 --GROUP BY  produto.nome_produto;
 
 ```
+
+# ALGEBRA RELACIONAL
+
+```sql 
+
+--1 -querie
+SELECT nome_ingrediente, nome_produto --o que quero mostrar fica no select (tabelas que tem esses dadoa no from ou joins)
+FROM ingrediente
+INNER JOIN produtoingrediente ON produtoingrediente.id_ingrediente = ingrediente.id_ingrediente
+INNER JOIN produto ON produto.id_produto = produtoingrediente.id_produto
+WHERE produto.id_produto = '11450'; --ir na tabela de produto e pegar algum id
+
+--Projeção: SELECT π, Seleção: WHERE σ,from ()
+
+--ESCREVEER: projecao... selecao...  tabelas (from, joins...) (nos joins é primerio ON e depois tabela, cada join fica dentro de um () e todos ficam dentro do ()
+
+π nome_ingrediente, nome_produto (
+    σ produto.id_produto = '11450'(
+     $ (ingrediente \bowtie_:{ produto.id_produto = produtoingrediente.id_produto} produtoingrediente) $
+    )
+)
+
+π nome_ingrediente, nome_produto (
+  σ produto.id_produto = 11450 (
+    (ingrediente ⋈ ingrediente.id_ingrediente = produtoingrediente.id_ingrediente
+    produtoingrediente) ⋈ produtoingrediente.id_produto = produto.id_produto produto
+  )
+)
+--group by, order by, limit... nao aparece na algebra relacional
+
+
+
+```
